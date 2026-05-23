@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<title>Happy Birthday ❤️</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#000}
+#app{width:100%;height:100vh;position:relative;overflow:hidden;font-family:'Montserrat',sans-serif}
+
+canvas#bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}
+
+.scene{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:10;pointer-events:none;opacity:0;transition:opacity 1.8s ease;
+}
+.scene.active{opacity:1;pointer-events:all}
+
+/* SCENE 1 — INTRO */
+#s1{background:radial-gradient(ellipse at 50% 60%,#1a0a12 0%,#000 70%)}
+
+.date-label{
+  font-family:'Montserrat',sans-serif;
+  font-weight:200;letter-spacing:6px;font-size:11px;
+  color:rgba(255,200,200,0.5);text-transform:uppercase;
+  margin-bottom:40px;opacity:0;transition:opacity 2s 0.5s;
+}
+.scene.active .date-label{opacity:1}
+
+.big-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(3.5rem,10vw,7rem);
+  font-weight:300;letter-spacing:2px;
+  color:#fff;text-align:center;line-height:1.1;
+  opacity:0;transform:translateY(30px);
+  transition:opacity 1.5s 0.3s,transform 1.5s 0.3s;
+}
+.scene.active .big-title{opacity:1;transform:translateY(0)}
+
+.big-title em{font-style:italic;color:#ffb3c6}
+
+.sub-title{
+  font-family:'Montserrat',sans-serif;font-weight:200;
+  font-size:clamp(0.75rem,2vw,0.95rem);letter-spacing:4px;
+  color:rgba(255,255,255,0.4);text-align:center;
+  margin-top:16px;opacity:0;transition:opacity 2s 1s;
+}
+.scene.active .sub-title{opacity:1}
+
+.line-dec{
+  width:60px;height:1px;background:rgba(255,179,198,0.4);
+  margin:32px auto;opacity:0;transition:opacity 2s 1.2s;
+}
+.scene.active .line-dec{opacity:1}
+
+.cta-btn{
+  border:none;outline:none;cursor:pointer;
+  background:transparent;
+  border:1px solid rgba(255,179,198,0.35);
+  color:rgba(255,179,198,0.9);
+  font-family:'Montserrat',sans-serif;font-weight:300;
+  letter-spacing:4px;font-size:11px;text-transform:uppercase;
+  padding:14px 40px;
+  opacity:0;transform:translateY(10px);
+  transition:opacity 2s 1.5s, transform 2s 1.5s, background 0.4s, letter-spacing 0.4s, color 0.4s, border-color 0.4s;
+}
+.scene.active .cta-btn{opacity:1;transform:translateY(0)}
+.cta-btn:hover{background:rgba(255,179,198,0.08);border-color:rgba(255,179,198,0.7);color:#fff;letter-spacing:6px}
+
+/* SCENE 2 — MESSAGE */
+#s2{background:radial-gradient(ellipse at 30% 50%,#0d0a1a 0%,#000 70%)}
+
+.quote-block{
+  max-width:min(600px,90vw);text-align:center;
+  padding:0 20px;
+}
+.quote-open{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(2.5rem,7vw,4.5rem);font-weight:300;
+  color:rgba(180,150,255,0.3);line-height:1;
+  display:block;margin-bottom:-10px;
+  opacity:0;transition:opacity 1.5s 0.2s;
+}
+.scene.active .quote-open{opacity:1}
+
+.quote-text{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(1.1rem,3.5vw,1.6rem);font-weight:300;
+  color:rgba(255,255,255,0.88);line-height:1.9;
+  opacity:0;transition:opacity 2s 0.6s,transform 2s 0.6s;
+  transform:translateY(20px);
+}
+.scene.active .quote-text{opacity:1;transform:translateY(0)}
+
+.quote-author{
+  font-family:'Montserrat',sans-serif;font-weight:200;
+  font-size:11px;letter-spacing:4px;
+  color:rgba(180,150,255,0.5);text-transform:uppercase;
+  margin-top:32px;
+  opacity:0;transition:opacity 2s 1.2s;
+}
+.scene.active .quote-author{opacity:1}
+
+/* SCENE 3 — GALLERY */
+#s3{background:#000}
+
+.gallery-title{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(2rem,5vw,3.2rem);font-weight:300;
+  color:rgba(255,255,255,0.9);text-align:center;
+  margin-bottom:40px;
+  opacity:0;transition:opacity 1.5s 0.2s;
+}
+.scene.active .gallery-title{opacity:1}
+
+.gallery-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:12px;width:min(700px,92vw);
+  opacity:0;transition:opacity 1.5s 0.5s,transform 1.5s 0.5s;
+  transform:translateY(30px);
+}
+.scene.active .gallery-grid{opacity:1;transform:translateY(0)}
+
+.gallery-card{
+  aspect-ratio:3/4;border-radius:4px;overflow:hidden;
+  position:relative;background:#111;
+  border:1px solid rgba(255,255,255,0.06);
+}
+.gallery-placeholder{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;
+}
+.gallery-icon{font-size:28px;opacity:0.2}
+.gallery-hint{
+  font-family:'Montserrat',sans-serif;font-weight:200;
+  font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.2);
+  text-transform:uppercase;text-align:center;padding:0 10px;
+}
+.gallery-num{
+  position:absolute;top:10px;left:12px;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:2rem;font-weight:300;color:rgba(255,255,255,0.06);
+}
+
+/* SCENE 4 — FINAL */
+#s4{background:radial-gradient(ellipse at 50% 40%,#200a14 0%,#000 65%)}
+
+.final-top{
+  font-family:'Montserrat',sans-serif;font-weight:200;
+  letter-spacing:6px;font-size:10px;
+  color:rgba(255,180,200,0.45);text-transform:uppercase;
+  margin-bottom:24px;
+  opacity:0;transition:opacity 2s 0.3s;
+}
+.scene.active .final-top{opacity:1}
+
+.final-love{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.5rem,7vw,5rem);
+  font-weight:300;letter-spacing:4px;
+  color:#fff;text-align:center;line-height:1.1;
+  opacity:0;transform:scale(0.92);
+  transition:opacity 2s 0.4s,transform 2s 0.4s;
+  text-shadow:0 0 80px rgba(255,100,150,0.2);
+}
+.scene.active .final-love{opacity:1;transform:scale(1)}
+
+.final-love span{display:block;font-style:italic;color:#ffb3c6;font-size:0.9em;letter-spacing:8px}
+
+.final-body{
+  max-width:min(520px,88vw);text-align:center;margin-top:36px;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(0.95rem,2.5vw,1.2rem);font-weight:300;
+  color:rgba(255,255,255,0.75);line-height:2.1;
+  opacity:0;transition:opacity 2s 1s;
+}
+.scene.active .final-body{opacity:1}
+
+.final-sig{
+  margin-top:32px;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:1.4rem;font-weight:300;
+  color:rgba(255,179,198,0.7);
+  opacity:0;transition:opacity 2s 1.6s;
+}
+.scene.active .final-sig{opacity:1}
+
+.final-btn{
+  margin-top:40px;border:none;outline:none;cursor:pointer;
+  background:linear-gradient(135deg,rgba(255,120,160,0.15),rgba(255,100,140,0.05));
+  border:1px solid rgba(255,150,180,0.3);
+  color:rgba(255,200,215,0.9);
+  font-family:'Montserrat',sans-serif;font-weight:300;
+  letter-spacing:4px;font-size:11px;text-transform:uppercase;
+  padding:16px 44px;
+  opacity:0;transition:opacity 2s 2s, background 0.5s, letter-spacing 0.5s, border-color 0.5s;
+}
+.scene.active .final-btn{opacity:1}
+.final-btn:hover{background:rgba(255,120,160,0.25);letter-spacing:6px;border-color:rgba(255,150,180,0.6)}
+
+/* SCENE 5 — ENDING */
+#s5{background:#000}
+
+.ending-wrap{text-align:center;padding:20px}
+.ending-number{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(5rem,18vw,12rem);
+  font-weight:300;color:rgba(255,255,255,0.06);
+  line-height:1;margin-bottom:-20px;
+  opacity:0;transition:opacity 2s 0.1s;
+}
+.scene.active .ending-number{opacity:1}
+.ending-big{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(2rem,8vw,5rem);font-weight:300;
+  color:#fff;line-height:1.2;
+  opacity:0;transform:translateY(20px);
+  transition:opacity 2s 0.5s,transform 2s 0.5s;
+}
+.scene.active .ending-big{opacity:1;transform:translateY(0)}
+.ending-big em{color:#ffb3c6}
+
+.ending-msg{
+  max-width:min(560px,88vw);margin:32px auto 0;
+  font-family:'Montserrat',sans-serif;font-weight:200;
+  font-size:clamp(0.78rem,2vw,0.92rem);letter-spacing:1px;
+  color:rgba(255,255,255,0.5);line-height:2.2;
+  opacity:0;transition:opacity 2s 1.2s;
+}
+.scene.active .ending-msg{opacity:1}
+
+.ending-heart{
+  font-size:2.5rem;margin-top:36px;
+  display:inline-block;
+  opacity:0;transition:opacity 2s 2s;
+  animation:pulse 2s infinite;
+}
+.scene.active .ending-heart{opacity:1}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.12)}
+}
+
+/* NAV DOTS */
+.nav-dots{
+  position:fixed;right:20px;top:50%;transform:translateY(-50%);
+  z-index:100;display:flex;flex-direction:column;gap:10px;
+}
+.dot{
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,0.2);
+  cursor:pointer;transition:all 0.3s;
+}
+.dot.on{background:rgba(255,179,198,0.8);transform:scale(1.4)}
+
+/* FLOATING PETALS */
+.petal{
+  position:fixed;font-size:16px;opacity:0;
+  animation:drift linear infinite;pointer-events:none;z-index:5;
+}
+@keyframes drift{
+  0%{transform:translateY(110vh) rotate(0deg);opacity:0}
+  10%{opacity:0.4}
+  90%{opacity:0.2}
+  100%{transform:translateY(-10vh) rotate(360deg);opacity:0}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<canvas id="bg"></canvas>
+
+<div class="nav-dots" id="navDots"></div>
+
+<!-- SCENE 1: INTRO -->
+<div class="scene active" id="s1">
+  <div class="date-label" id="dynDate">— hari yang istimewa —</div>
+  <div class="big-title">Happy<br><em>Birthday</em></div>
+  <div class="sub-title">untuk seseorang yang sangat berarti</div>
+  <div class="line-dec"></div>
+  <button class="cta-btn" onclick="goTo(1)">Mulai Perjalanan</button>
+</div>
+
+<!-- SCENE 2: PESAN HATI -->
+<div class="scene" id="s2">
+  <div class="quote-block">
+    <span class="quote-open">"</span>
+    <p class="quote-text">
+      Kamu adalah orang yang membuatku percaya<br>
+      bahwa hal-hal baik itu nyata.<br><br>
+      Terima kasih sudah ada,<br>
+      dan terima kasih sudah menjadi kamu.
+    </p>
+    <div class="quote-author">— dengan sepenuh hati</div>
+    <div style="margin-top:44px">
+      <button class="cta-btn" onclick="goTo(2)">Lanjutkan ❤</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCENE 3: GALERI KENANGAN -->
+<div class="scene" id="s3">
+  <div class="gallery-title">Kenangan Kita ✨</div>
+
+  <div class="gallery-grid">
+
+    <!-- CARD 1 -->
+    <div class="gallery-card" onclick="this.classList.toggle('flipped')">
+
+      <div class="gallery-inner">
+
+        <!-- DEPAN -->
+        <div class="gallery-front">
+          <div class="gallery-num">01</div>
+
+          <div class="gallery-placeholder">
+            <div class="gallery-icon">🌸</div>
+            <div class="gallery-hint">klik untuk melihat</div>
+          </div>
+        </div>
+
+        <!-- BELAKANG -->
+        <div class="gallery-back">
+          <img src="foto1.jpg">
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- CARD 2 -->
+    <div class="gallery-card" onclick="this.classList.toggle('flipped')">
+
+      <div class="gallery-inner">
+
+        <div class="gallery-front">
+          <div class="gallery-num">02</div>
+
+          <div class="gallery-placeholder">
+            <div class="gallery-icon">🌙</div>
+            <div class="gallery-hint">klik untuk melihat</div>
+          </div>
+        </div>
+
+        <div class="gallery-back">
+          <img src="foto2.jpg">
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- CARD 3 -->
+    <div class="gallery-card" onclick="this.classList.toggle('flipped')">
+
+      <div class="gallery-inner">
+
+        <div class="gallery-front">
+          <div class="gallery-num">03</div>
+
+          <div class="gallery-placeholder">
+            <div class="gallery-icon">🌿</div>
+            <div class="gallery-hint">klik untuk melihat</div>
+          </div>
+        </div>
+
+        <div class="gallery-back">
+          <img src="foto3.jpeg">
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div style="margin-top:36px">
+    <button class="cta-btn" onclick="goTo(3)">Ada Satu Lagi ❤</button>
+  </div>
+</div>
+<style type="text/css">
+  .gallery-card{
+  aspect-ratio:3/4;
+  perspective:1200px;
+  cursor:pointer;
+  background:transparent;
+  border:none;
+}
+
+.gallery-inner{
+  position:relative;
+  width:100%;
+  height:100%;
+  transition:transform 1s cubic-bezier(.4,.2,.2,1);
+  transform-style:preserve-3d;
+}
+
+.gallery-card.flipped .gallery-inner{
+  transform:rotateY(180deg);
+}
+
+.gallery-front,
+.gallery-back{
+  position:absolute;
+  width:100%;
+  height:100%;
+  top:0;
+  left:0;
+  border-radius:4px;
+  overflow:hidden;
+  backface-visibility:hidden;
+}
+
+.gallery-front{
+  background:#111;
+  border:1px solid rgba(255,255,255,0.06);
+}
+
+.gallery-back{
+  transform:rotateY(180deg);
+}
+
+.gallery-back img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+</style>
+<!-- SCENE 4: FINAL MESSAGE -->
+<div class="scene" id="s4">
+  <div class="final-top">— untuk selamanya —</div>
+  <div class="final-love">I Love<span>You</span></div>
+  <div class="final-body">
+    Selamat ulang tahun, sayangku.<br>
+    Terima kasih sudah bertahan bersama versi diriku<br>
+    yang belum sempurna.<br><br>
+    Semoga umur yang baru ini membawa<br>
+    kebahagiaan, kesehatan, dan semua impian<br>
+    yang selama ini kamu perjuangkan.
+  </div>
+  <div class="final-sig">— selalu, untukmu ❤</div>
+  <button class="final-btn" id="surpriseBtn" onclick="doSurprise()">✦ Final Surprise ✦</button>
+</div>
+
+<!-- SCENE 5: ENDING -->
+<div class="scene" id="s5">
+  <div class="ending-wrap">
+    <div class="ending-number">24 Tahun</div>
+    <div class="ending-big">Selamat ulang tahun,<br><em>kamu yang luar biasa.</em></div>
+    <div class="ending-msg">
+      Semoga di setiap langkahmu ke depan,<br>
+      selalu ada hal-hal indah yang menunggumu.<br>
+      Dan semoga kita masih terus membuat<br>
+      banyak cerita bersama ❤
+    </div>
+    <div class="ending-heart">❤️</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const SCENES = ['s1','s2','s3','s4','s5'];
+let cur = 0;
+
+// ─── PARTICLE BACKGROUND ──────────────────────────────────────────────────────
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const COLORS = [
+  'rgba(255,179,198,VAL)',
+  'rgba(255,220,220,VAL)',
+  'rgba(200,180,255,VAL)',
+  'rgba(255,255,255,VAL)'
+];
+
+const particles = [];
+for(let i = 0; i < 180; i++){
+  particles.push({
+    x:     Math.random() * canvas.width,
+    y:     Math.random() * canvas.height,
+    r:     Math.random() * 1.5 + 0.3,
+    dx:    (Math.random() - 0.5) * 0.15,
+    dy:    (Math.random() - 0.5) * 0.15,
+    col:   COLORS[Math.floor(Math.random() * COLORS.length)],
+    a:     Math.random() * 0.6 + 0.1,
+    phase: Math.random() * Math.PI * 2,
+    speed: Math.random() * 0.02 + 0.005
+  });
+}
+
+function animBg(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const t = Date.now() * 0.001;
+  particles.forEach(p => {
+    p.x += p.dx;
+    p.y += p.dy;
+    if(p.x < 0) p.x = canvas.width;
+    if(p.x > canvas.width)  p.x = 0;
+    if(p.y < 0) p.y = canvas.height;
+    if(p.y > canvas.height) p.y = 0;
+    const alpha = p.a * (0.5 + 0.5 * Math.sin(t * p.speed * 60 + p.phase));
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.col.replace('VAL', alpha.toFixed(2));
+    ctx.fill();
+  });
+  requestAnimationFrame(animBg);
+}
+animBg();
+
+window.addEventListener('resize', () => {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+// ─── NAVIGATION DOTS ──────────────────────────────────────────────────────────
+const navDots = document.getElementById('navDots');
+SCENES.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' on' : '');
+  d.onclick = () => goTo(i);
+  navDots.appendChild(d);
+});
+
+function goTo(idx){
+  document.getElementById(SCENES[cur]).classList.remove('active');
+  cur = idx;
+  document.getElementById(SCENES[cur]).classList.add('active');
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('on', i === cur);
+  });
+  if(cur === 4) setTimeout(bigFinale, 600);
+}
+
+// ─── TOMBOL FINAL SURPRISE ────────────────────────────────────────────────────
+function doSurprise(){
+  const btn = document.getElementById('surpriseBtn');
+  btn.style.display = 'none';
+
+  confetti({ particleCount:200, spread:100, origin:{y:0.6},
+    colors:['#ffb3c6','#ff7aa2','#ffffff','#ffd6e0'] });
+
+  setTimeout(() => {
+    confetti({ particleCount:150, spread:120, origin:{y:0.5},
+      colors:['#ffb3c6','#ff4d88','#ffe0eb'] });
+  }, 500);
+
+  setTimeout(() => {
+    confetti({ particleCount:100, spread:160, origin:{y:0.7},
+      colors:['#ffffff','#ffd6e0','#ffb3c6'] });
+    setTimeout(() => goTo(4), 1200);
+  }, 1000);
+}
+
+// ─── ENDING CONFETTI ──────────────────────────────────────────────────────────
+function bigFinale(){
+  const burst = () => {
+    confetti({
+      particleCount: 80,
+      spread: 130,
+      origin: { x: Math.random(), y: Math.random() * 0.5 + 0.2 },
+      colors: ['#ffb3c6','#ff6699','#ffe0eb','#ffffff','#d4aaff']
+    });
+  };
+  burst();
+  setTimeout(burst, 400);
+  setTimeout(burst, 900);
+  setTimeout(burst, 1600);
+  setTimeout(burst, 2400);
+}
+
+// ─── FLOATING PETALS ──────────────────────────────────────────────────────────
+const petals = ['🌸','✿','❀','🌺','✦'];
+for(let i = 0; i < 15; i++){
+  const p = document.createElement('div');
+  p.className = 'petal';
+  p.textContent = petals[Math.floor(Math.random() * petals.length)];
+  p.style.left            = Math.random() * 100 + 'vw';
+  p.style.animationDuration = (Math.random() * 12 + 10) + 's';
+  p.style.animationDelay    = (Math.random() * 15) + 's';
+  p.style.fontSize          = (Math.random() * 10 + 10) + 'px';
+  document.getElementById('app').appendChild(p);
+}
+
+// ─── TANGGAL OTOMATIS ─────────────────────────────────────────────────────────
+const now  = new Date();
+const opts = { year:'numeric', month:'long', day:'numeric' };
+document.getElementById('dynDate').textContent =
+  '— ' + now.toLocaleDateString('id-ID', opts) + ' —';
+</script>
+
+<!-- BACKGROUND MUSIC -->
+<audio id="bgMusic" loop>
+  <source src="lagu.m4a" type="audio/mp4">
+</audio>
+
+<!-- MUSIC CONTROL -->
+<button id="musicBtn">♫</button>
+
+<!-- MUSIC HINT -->
+<div id="musicHint">klik musik ✨</div>
+
+<style>
+#musicBtn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(10px);
+  color:#fff;
+  font-size:18px;
+  cursor:pointer;
+  z-index:999;
+  transition:all .3s ease;
+}
+
+#musicBtn:hover{
+  transform:scale(1.08);
+  background:rgba(255,255,255,0.12);
+}
+
+#musicHint{
+  position:fixed;
+  bottom:78px;
+  right:20px;
+  padding:10px 16px;
+  border-radius:14px;
+
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter:blur(10px);
+
+  color:rgba(255,255,255,0.85);
+  font-family:'Montserrat',sans-serif;
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+
+  z-index:999;
+  animation:floatHint 2s ease-in-out infinite;
+  transition:opacity .5s ease;
+}
+
+@keyframes floatHint{
+  0%,100%{
+    transform:translateY(0);
+    opacity:.75;
+  }
+  50%{
+    transform:translateY(-6px);
+    opacity:1;
+  }
+}
+</style>
+
+<script>
+const music = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+const musicHint = document.getElementById('musicHint');
+
+music.volume = 0.45;
+
+musicBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+
+  if(music.paused){
+    music.play();
+
+    musicBtn.innerHTML = '♫';
+
+    // hilangkan hint
+    musicHint.style.opacity = '0';
+
+    setTimeout(() => {
+      musicHint.style.display = 'none';
+    }, 500);
+
+  } else {
+    music.pause();
+    musicBtn.innerHTML = '⏸';
+  }
+});
+</script>
+</div>
+</body>
+</html>
